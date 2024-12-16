@@ -9,13 +9,12 @@ import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import webbrowser
 
 # Determine if running as a frozen (compiled) executable
 if getattr(sys, 'frozen', False):
-    # Running in a PyInstaller bundle
     application_path = sys._MEIPASS
 else:
-    # Running as a normal Python script
     application_path = os.path.dirname(os.path.abspath(__file__))
 
 grocery_file_path = os.path.join(application_path, "grocery_items.txt")
@@ -27,12 +26,10 @@ with open(grocery_file_path, "r") as f:
 
 grocery_items = local_vars['grocery_items']
 
-# Points thresholds
 WIN_THRESHOLD = 50
 LOSE_THRESHOLD = -20
 GROCERY_WIN_THRESHOLD = 100
-
-DIFFICULTY = "medium"  # For selecting foods
+DIFFICULTY = "medium"
 
 def load_progress():
     progress_path = os.path.join(application_path, "progress.json")
@@ -56,6 +53,14 @@ def select_foods(options, count=2, difficulty="medium"):
     selected = [chosen_good, chosen_bad]
     random.shuffle(selected)
     return selected
+
+# Example meditation videos dictionary
+meditation_videos = {
+    "Calm": "https://www.youtube.com/@calm",
+    "Breathing": "https://www.youtube.com/@EckhartTolle",
+    "Headspace": "https://www.youtube.com/@headspace",
+    "Cozy Cycles": "https://www.youtube.com/@CozyCycles"
+}
 
 class GERDGameApp:
     def __init__(self, master):
@@ -99,6 +104,10 @@ class GERDGameApp:
 
         self.grocery_game_button = tk.Button(self.game_mode_frame, text="Play Grocery Selection Game", command=self.start_grocery_game)
         self.grocery_game_button.pack(side=tk.LEFT, padx=10)
+
+        # Add Meditation Videos button
+        self.meditation_button = tk.Button(self.game_mode_frame, text="Meditation Videos", command=self.show_meditation_videos)
+        self.meditation_button.pack(side=tk.LEFT, padx=10)
 
         self.next_button = tk.Button(self.master, text="Start Selected Game", command=self.no_op)
         self.next_button.pack(side=tk.BOTTOM, pady=10)
@@ -302,6 +311,21 @@ class GERDGameApp:
             widget.destroy()
         self.game_mode_frame.pack_forget()
         self.image_label.config(image='', text='')
+
+    def show_meditation_videos(self):
+        meditation_window = tk.Toplevel(self.master)
+        meditation_window.title("Recommended Meditation Videos")
+
+        info_label = tk.Label(meditation_window, text="Click on a video to open it in your browser:")
+        info_label.pack(pady=10)
+
+        for title, url in meditation_videos.items():
+            btn = tk.Button(meditation_window, text=title, fg="blue", cursor="hand2",
+                            command=lambda link=url: webbrowser.open(link))
+            btn.pack(pady=5, padx=10)
+
+        close_btn = tk.Button(meditation_window, text="Close", command=meditation_window.destroy)
+        close_btn.pack(pady=10)
 
 if __name__ == "__main__":
     root = tk.Tk()
